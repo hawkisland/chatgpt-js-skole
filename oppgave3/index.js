@@ -1,8 +1,12 @@
 const grid = document.querySelector('.grid')
 const resultDisplay = document.querySelector('.results')
+let currentShooterIndex = 202
 const width = 15
 const aliensRemoved = []
-const currentShooterIndex= 202
+let invadersId
+let isGoingRight = true
+let direction = 1
+
 
 
 for (let i = 0; i < width * width; i++){
@@ -23,9 +27,9 @@ const alienInvaders = [
 
 
 function draw(){
-    for(let i = 0; i < alienInvaders.length;i++){
+    for(let i = 0; i < alienInvaders.length; i++){
         if(!aliensRemoved.includes(i)){
-        squares[alienInvaders[i]].classList.add('invader')
+            squares[alienInvaders[i]].classList.add('invader')
         }
     }
 }
@@ -34,14 +38,53 @@ draw()
 
 squares[currentShooterIndex].classList.add('shooter')
 
-function moveShooter(e) {
-    squares[currentShooterIndex].classList.remove('shooter')
-    switch(e.key){
-        case 'ArrowLeft':
-            if(currentShooterIndex % width !==0) currentShooterIndex -=1
-            break
+function remove(){
+    for(let i = 0; i < alienInvaders.length; i++){
+        squares[alienInvaders[i]].classList.remove('invader')
     }
-    squares[currentShooterIndex].classList.add('shooter')
 }
 
-document.addEventListener('Keydown', moveShooter)
+function moveShooter(e) {
+    squares[currentShooterIndex].classList.remove('shooter')
+    switch(e.key) {
+        case 'ArrowLeft':
+            if (currentShooterIndex % width !==0) currentShooterIndex -=1
+            break
+            
+        case 'ArrowRight':
+            if(currentShooterIndex % width < width - 1) currentShooterIndex +=1
+            break
+    
+        }
+    squares[currentShooterIndex].classList.add('shooter')
+}
+document.addEventListener('keydown', moveShooter)
+
+function moveInvaders() {
+    const leftEdge =alienInvaders[0] % width === 0
+    const rightEdge = alienInvaders[alienInvaders.length - 1] % width === width -0
+    remove()
+
+    if (rightEdge && isGoingRight){
+        for(let i = 0; i < alienInvaders.length; i++){
+            alienInvaders[i] += width + 1
+            direction = -1
+            isGoingRight = false
+        } 
+    }
+
+    if  (leftEdge && isGoingRight){
+            for(let i = 0; i < alienInvaders.length; i++){
+                alienInvaders[i] += width - 1
+                direction = 1
+                isGoingRight = true
+        }
+    }
+    
+    for( let i = 0; i < alienInvaders.length; i++){
+        alienInvaders[i] += direction
+    }
+    draw()
+} 
+invadersId = setInterval(moveInvaders, 600)
+
